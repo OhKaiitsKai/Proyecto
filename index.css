@@ -98,12 +98,13 @@ label {
 input[type="range"] {
     -webkit-appearance: none; /* Eliminar el estilo por defecto de WebKit */
     appearance: none; /* Eliminar el estilo por defecto */
-    width: 100%; /* Ancho completo */
-    height: 10px; /* Altura del control deslizante */
+    width: 80%; /* Reducir el ancho */
+    height: 20px; /* Altura del control deslizante */
     background: #CFD6C4; /* Color de fondo */
     border-radius: 6px; /* Borde redondeado */
     outline: none; /* Eliminar el contorno al hacer clic */
     margin: 10px 0; /* Margen superior e inferior */
+    position: relative; /* Posición relativa para los números */
 }
 
 /* Estilos para el deslizador en WebKit */
@@ -115,15 +116,24 @@ input[type="range"]::-webkit-slider-thumb {
     background: #657166; /* Color de fondo del pulgar */
     border-radius: 50%; /* Hacer el pulgar redondeado */
     cursor: pointer; /* Cambiar el cursor al pasar sobre el pulgar */
+    position: relative; /* Posición relativa para los números */
+    z-index: 0; /* Asegurar que el pulgar esté sobre los números */
 }
 
-/* Estilos para el deslizador en Firefox */
-input[type="range"]::-moz-range-thumb {
-    width: 20px; /* Ancho del pulgar */
-    height: 20px; /* Altura del pulgar */
-    background: #657166; /* Color de fondo del pulgar */
-    border-radius: 50%; /* Hacer el pulgar redondeado */
-    cursor: pointer; /* Cambiar el cursor al pasar sobre el pulgar */
+/* Estilos para mostrar los números en los controles deslizantes */
+input[type="range"]::after {
+    content: attr(value); /* Mostrar el valor del control deslizante */
+    position: absolute;
+    top: -10px; /* Posición vertical ajustada */
+    right: -40px; /* Posición horizontal a la derecha */
+    background: #657166; /* Color de fondo */
+    color: #ffffff; /* Color del texto */
+    padding: 4px 8px; /* Espaciado interno */
+    border-radius: 4px; /* Borde redondeado */
+    font-size: 12px; /* Tamaño de fuente */
+    pointer-events: none; /* Evitar la interacción con el usuario */
+    z-index: 0; /* Colocar los números detrás del pulgar */
+    transform: translateY(50%); /* Alinear verticalmente con el pulgar */
 }
 
 
