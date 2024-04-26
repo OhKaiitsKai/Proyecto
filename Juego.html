@@ -1,37 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantry Pursuit: Bagged Challenge</title>
-  </head>
-  <body>
+</head>
+
+<body>
     <script type="module">
-      import * as THREE from "./three.module.js";
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color("#566573");
+        import * as THREE from "./three.module.js";
 
-      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
+        // Crear la primera escena
+        const scene1 = new THREE.Scene();
+        scene1.background = new THREE.Color("#566573");
+        const camera1 = new THREE.PerspectiveCamera(45, window.innerWidth / 2 / window.innerHeight, 1, 1000);
+        camera1.position.set(0, 0, 5);
+        const renderer1 = new THREE.WebGLRenderer();
+        
+        // Configurar el primer renderizador
+        renderer1.setSize(window.innerWidth / 2, window.innerHeight);
+        renderer1.domElement.style.position = "absolute";
+        renderer1.domElement.style.top = "0";
+        renderer1.domElement.style.left = "0";
+        document.body.appendChild(renderer1.domElement);
 
-      camera.position.set(0, 0, 5);
+        // Crear el cubo rojo
+        const geometry1 = new THREE.BoxGeometry(1, 1, 1, 5, 5, 2);
+        const material1 = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
+        const cube1 = new THREE.Mesh(geometry1, material1);
+        scene1.add(cube1);
 
-      const renderer = new THREE.WebGLRenderer();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+        // Crear la segunda escena
+        const scene2 = new THREE.Scene();
+        scene2.background = new THREE.Color("#000000");
+        const camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / 2 / window.innerHeight, 1, 1000);
+        camera2.position.set(0, 0, 5);
+        const renderer2 = new THREE.WebGLRenderer();
+        
+        // Configurar el segundo renderizador
+        renderer2.setSize(window.innerWidth / 2, window.innerHeight);
+        renderer2.domElement.style.position = "absolute";
+        renderer2.domElement.style.top = "0";
+        renderer2.domElement.style.left = `${window.innerWidth / 2}px`;
+        document.body.appendChild(renderer2.domElement);
 
-      const geometry = new THREE.BoxGeometry(1, 1, 1, 5, 5, 2);
-      const material = new THREE.MeshBasicMaterial({color: 0x00ff00, wireframe: true,});
-      const cube = new THREE.Mesh(geometry, material);
+        // Crear el cubo verde
+        const geometry2 = new THREE.BoxGeometry(1, 1, 1, 5, 5, 2);
+        const material2 = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true });
+        const cube2 = new THREE.Mesh(geometry2, material2);
+        scene2.add(cube2);
 
-      scene.add(cube);
+        // Función de animación
+        function animate() {
+            requestAnimationFrame(animate);
 
-      function animate() {
-        requestAnimationFrame(animate);
-        cube.rotation.x = cube.rotation.x + 0.01;
-        cube.rotation.y += 0.01;
-        renderer.render(scene, camera);
-      }
-      animate();
+            // Actualizar la rotación de los cubos
+            cube1.rotation.x += 0.01;
+            cube1.rotation.y += 0.01;
+            cube2.rotation.x += 0.01;
+            cube2.rotation.y += 0.01;
+
+            // Renderizar la primera escena
+            renderer1.render(scene1, camera1);
+
+            // Renderizar la segunda escena
+            renderer2.render(scene2, camera2);
+        }
+
+        // Iniciar la animación
+        animate();
     </script>
-  </body>
+</body>
+
 </html>
+

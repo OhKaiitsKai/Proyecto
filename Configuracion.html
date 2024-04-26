@@ -1,34 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantry Pursuit: Bagged Challenge</title>
     <link rel="stylesheet" href="index.css">
-  </head>
-  <body class="body">
+</head>
+<body class="body">
 
-    <div class="Menu">
-
-        <form class="Centro">
-
-            <h1 class="Titulo1">Configuración</h1>
-
-            <!-- Control deslizante para la dificultad -->
+<div class="Menu">
+    <form class="Centro">
+        <h1 class="Titulo1">Configuración</h1>
+        <!-- Control deslizante para la dificultad -->
         <label for="dificultad">Dificultad:</label>
-        <input type="range" id="dificultad" name="dificultad" min="1" max="5" value="1">
+        <input type="range" id="dificultad" name="dificultad" min="1" max="5" value="1" data-value="1">
         <!-- Control deslizante para el volumen -->
         <label for="volumen">Volumen:</label>
-        <input type="range" id="volumen" name="volumen" min="0" max="100" value="100">
+        <input type="range" id="volumen" name="volumen" min="0" max="100" value="100" data-value="100">
         <!-- Control deslizante para la música -->
         <label for="musica">Música:</label>
-        <input type="range" id="musica" name="musica" min="0" max="100" value="100">
-            <button>Controles</button>
-            <button>Volver</button>
+        <input type="range" id="musica" name="musica" min="0" max="100" value="100" data-value="100">
+        <button>Controles</button>
+        <button id="volverBtn">Volver</button>
 
-        </form>
+    </form>
+</div>
 
-    </div>
-
-  </body>
+<script src="Configuracion.js"></script>
+</body>
 </html>
