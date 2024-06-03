@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pantry Pursuit: Supermarket</title>
+    <style>
+        .divider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 2px;
+            height: 100%;
+            background-color: #000;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <script type="module">
+        import * as THREE from "./three.module.js";
+        import { OrbitControls } from "./OrbitControls.js";
+        import { MTLLoader } from "./MTLLoader.js";
+        import { OBJLoader } from "./OBJLoader.js";
+
+        const scene1 = new THREE.Scene();
+        const scene2 = new THREE.Scene();
+
+        // Load background texture
+        const textureLoader = new THREE.TextureLoader();
+        const backgroundTexture = textureLoader.load('supermarket.jpg', (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            texture.encoding = THREE.sRGBEncoding;
+            scene1.background = texture;
+            scene2.background = texture;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.code === "Escape") {
+                window.location.href = "Pausa.html";
+            }
+        });
+
+        const camera1 = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000);
+        camera1.position.set(0, 3, 5);
+
+        const renderer1 = new THREE.WebGLRenderer();
+        renderer1.setSize(window.innerWidth / 2, window.innerHeight);
+        renderer1.domElement.style.position = "absolute";
+        renderer1.domElement.style.top = "0";
+        renderer1.domElement.style.left = "0";
+        document.body.appendChild(renderer1.domElement);
+
+        const Cam1Control = new OrbitControls(camera1, renderer1.domElement);
+        Cam1Control.listenToKeyEvents(window);
+        Cam1Control.keys = { LEFT: 'KeyA', UP: 'KeyW', RIGHT: 'KeyD', BOTTOM: 'KeyS' };
+        Cam1Control.enableZoom = false;
+        Cam1Control.enableRotate = false;
+
+        const camera2 = new THREE.PerspectiveCamera(75, window.innerWidth / 2 / window.innerHeight, 0.1, 1000);
+        camera2.position.set(0, 3, 5);
+
+        const renderer2 = new THREE.WebGLRenderer();
+        renderer2.setSize(window.innerWidth / 2, window.innerHeight);
+        renderer2.domElement.style.position = "absolute";
+        renderer2.domElement.style.top = "0";
+        renderer2.domElement.style.left = `${window.innerWidth / 2}px`;
+        document.body.appendChild(renderer2.domElement);
+
+        const Cam2Control = new OrbitControls(camera2, renderer2.domElement);
+        Cam2Control.listenToKeyEvents(window);
+        Cam2Control.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
+        Cam2Control.enableZoom = false;
+        Cam2Control.enableRotate = false;
+
+        const addSupermarketElements = (scene) => {
+            const floorGeometry = new THREE.PlaneGeometry(100, 100);
+            const floorMaterial = new THREE.MeshLambertMaterial({ color: 0xCED6C4, transparent: true, opacity: 0.8 });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.7);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 1.5);
+            directionalLight.position.set(1, 3, 2);
+            scene.add(directionalLight);
+        };
+
+        addSupermarketElements(scene1);
+        addSupermarketElements(scene2);
+
+        //JUGADORES
+
+        let cart1, cart2;
+        const loadCartModel = (scene, setCartVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Carrito/');
+            mtlLoader.load('carrito.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Carrito/');
+                objLoader.load('carrito.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/carritoP1.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(0, .35, 0);
+                    scene.add(object);
+                    setCartVariable(object);
+                });
+            });
+        };
+
+        loadCartModel(scene1, (cart) => { cart1 = cart; });
+        loadCartModel(scene2, (cart) => { cart2 = cart; });
+
+        //ITEMS
+        
+        let Manzana = false;
+        let Banana = false;
+        let Lata = false;
+        let Tomate = false;
+        let Durazno = false;
+        let Berengena = false;
+        let Zanahoria = false;
+        let Dona = false;
+        let Hamburguesa = false;
+        let Bebida1 = false;
+        let Bebida2 = false;
+        let Bebida3 = false;
+        let Bebida4 = false;
+        let Papitas = false;
+        let Sushi = false;
+        let Yogurt = false;
+        let Helado = false;
+        let Salchicha = false;
+
+        //Manzana
+
+        let man1, man2;
+        const LoadManzanamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Manzana/');
+            mtlLoader.load('uploads_files_3685626_FS-0011+Apples.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Manzana/');
+                objLoader.load('uploads_files_3685626_FS-0011+Apples.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Manzana/textures/Apple1_u1_v1_diffuse.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(2.3, 1.7, -15);
+                    object.scale.set(5, 5, 5);
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadManzanamodel(scene1, (man) => { man1 = man; });
+        LoadManzanamodel(scene2, (man) => { man2 = man; });
+
+        //Banana
+
+        let Ban1, Ban2;
+        const LoadBananamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('banana_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('banana_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(3.5, 1.7, -15);
+                    object.scale.set(4, 4, 4);
+                    object.rotation.y = 90;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadBananamodel(scene1, (Ban) => { Ban1 = Ban; });
+        LoadBananamodel(scene2, (Ban) => { Ban2 = Ban; });
+
+        //Zanahoria
+
+        let Zan1, Zan2;
+        const LoadZanahoriamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('carrot_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('carrot_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(1.3, 1.7, -15);
+                    object.scale.set(5, 5, 5);
+                    object.rotation.y = 30;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadZanahoriamodel(scene1, (Zan) => { Zan1 = Zan; });
+        LoadZanahoriamodel(scene2, (Zan) => { Zan2 = Zan; });
+
+        //Berengena
+
+        let Ben1, Ben2;
+        const LoadBerengenamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('eggplant_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('eggplant_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-1.2, 1.7, -15);
+                    object.scale.set(4, 4, 4);
+                    object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadBerengenamodel(scene1, (Ben) => { Ben1 = Ben; });
+        LoadBerengenamodel(scene2, (Ben) => { Ben2 = Ben; });
+
+        //Durazno
+
+        let Dur1, Dur2;
+        const LoadDuraznomodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('peach_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('peach_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-2.3, 1.7, -15);
+                    object.scale.set(4, 4, 4);
+                    //object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadDuraznomodel(scene1, (Dur) => { Dur1 = Dur; });
+        LoadDuraznomodel(scene2, (Dur) => { Dur2 = Dur; });
+
+        //Tomate
+
+        let Tom1, Tom2;
+        const LoadTomatemodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('tomato_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('tomato_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-3.5, 1.7, -15);
+                    object.scale.set(4, 4, 4);
+                    //object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadTomatemodel(scene1, (Tom) => { Tom1 = Tom; });
+        LoadTomatemodel(scene2, (Tom) => { Tom2 = Tom; });
+
+        //Papita
+
+        let Pap1, Pap2;
+        const LoadPapitasmodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('chips_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('chips_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-7, 2.2, 2.5);
+                    object.scale.set(4, 4, 4);
+                    //object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadPapitasmodel(scene1, (Pap) => { Pap1 = Pap; });
+        LoadPapitasmodel(scene2, (Pap) => { Pap2 = Pap; });
+
+        //Hamburguesa
+
+        let Bur1, Bur2;
+        const LoadBurgermodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('burger_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('burger_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(18, 2.3, 5);
+                    object.scale.set(4, 4, 4);
+                    //object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadBurgermodel(scene1, (Bur) => { Bur1 = Bur; });
+        LoadBurgermodel(scene2, (Bur) => { Bur2 = Bur; });
+
+        //Dona
+
+        let Don1, Don2;
+        const LoadDonamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('donut_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('donut_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(5.5, 2.4, -4);
+                    object.scale.set(4, 4, 4);
+                    //object.rotation.y = 10;
+                    scene.add(object);
+                    setmanVariable(object);
+                });
+            });
+        };
+
+        LoadDonamodel(scene1, (Don) => { Don1 = Don; });
+        LoadDonamodel(scene2, (Don) => { Don2 = Don; });
+
+        //Bebida 1
+
+        let Beb1, Beb2;
+        const LoadBebidamodel = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('drink_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('drink_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-18, 2.3, -3);
+                    object.scale.set(3, 3, 3);
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadBebidamodel(scene1, (Beb) => { Beb1 = Beb; });
+        LoadBebidamodel(scene2, (Beb) => { Beb2 = Beb; });
+
+        //Bebida 2
+
+        let Beb3, Beb4;
+        const LoadBebidamodel2 = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('drink_002.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('drink_002.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-5.5, 2.3, -3);
+                    object.scale.set(3, 3, 3);
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadBebidamodel2(scene1, (Beb) => { Beb3 = Beb; });
+        LoadBebidamodel2(scene2, (Beb) => { Beb4 = Beb; });
+
+        //Bebida 3
+
+        let Beb5, Beb6;
+        const LoadBebidamodel3 = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('drink_003.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('drink_003.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-7, 2.3, -3);
+                    object.scale.set(3, 3, 3);
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadBebidamodel3(scene1, (Beb) => { Beb5 = Beb; });
+        LoadBebidamodel3(scene2, (Beb) => { Beb6 = Beb; });
+
+        //Bebida 4
+
+        let Beb7, Beb8;
+        const LoadBebidamodel4 = (scene, setmanVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('drink_004.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('drink_004.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-18, 2.3, 5);
+                    object.scale.set(3, 3, 3);
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadBebidamodel4(scene1, (Beb) => { Beb7 = Beb; });
+        LoadBebidamodel4(scene2, (Beb) => { Beb8 = Beb; });
+
+        //Yogurt
+
+        let Yog1, Yog2;
+        const LoadYogurtmodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('yogurt_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('yogurt_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-6, 2, -15);
+                    object.scale.set(4, 4, 4);
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadYogurtmodel(scene1, (Yog) => { Yog1 = Yog; });
+        LoadYogurtmodel(scene2, (Yog) => { Yog2 = Yog; });
+
+        //Sushi
+
+        let Sus1, Sus2;
+        const LoadSushimodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('sushi_dish_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('sushi_dish_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-8, 2, -15);
+                    object.scale.set(6, 6, 6);
+                    object.rotation.x = 0.261799;
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadSushimodel(scene1, (Sus) => { Sus1 = Sus; });
+        LoadSushimodel(scene2, (Sus) => { Sus2 = Sus; });
+
+        //Helado
+
+        let Hel1, Hel2;
+        const LoadHeladomodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('ice_cream_dish_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('ice_cream_dish_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(6, 2, -15);
+                    object.scale.set(4, 4, 4);
+                    object.rotation.x = 0.261799;
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadHeladomodel(scene1, (Hel) => { Hel1 = Hel; });
+        LoadHeladomodel(scene2, (Hel) => { Hel2 = Hel; });
+
+        //Salchicha
+
+        let Sal1, Sal2;
+        const LoadSalchichamodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Productos/');
+            mtlLoader.load('sausages_001.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Productos/');
+                objLoader.load('sausages_001.obj', (object) => {
+                    const texture = textureLoader.load('Modelos/Productos/Textures.png');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(8, 2, -15);
+                    object.scale.set(3, 3, 3);
+                    //object.rotation.x = 0.261799;
+                    scene.add(object);
+                    setcanVariable(object);
+                });
+            });
+        };
+
+        LoadSalchichamodel(scene1, (Sal) => { Sal1 = Sal; });
+        LoadSalchichamodel(scene2, (Sal) => { Sal2 = Sal; });
+
+        //ESCENARIOS
+        //
+        //Contenedores Frutas
+
+        let ContF1, ContF2;
+        const LoadContFmodel1 = (scene, setjugVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Frutas/');
+            mtlLoader.load('Frutas_Container.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Frutas/');
+                objLoader.load('Frutas_Container.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/madera.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(2.3, .8, -15);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadContFmodel1(scene1, (ContF) => { ContF1 = ContF; });
+        LoadContFmodel1(scene2, (ContF) => { ContF2 = ContF; });
+
+        let ContF3, ContF4;
+        const LoadContFmodel2 = (scene, setjugVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Frutas/');
+            mtlLoader.load('Frutas_Container.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Frutas/');
+                objLoader.load('Frutas_Container.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/madera.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-2.3, 0.8, -15);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadContFmodel2(scene1, (ContF) => { ContF3 = ContF; });
+        LoadContFmodel2(scene2, (ContF) => { ContF4 = ContF; });
+
+        //Estanterias
+
+        let Est1, Est2;
+        const LoadEstmodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-6, 0, -3);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel(scene1, (Est) => { Est1 = Est; });
+        LoadEstmodel(scene2, (Est) => { Est2 = Est; });
+
+        let Est3, Est4;
+        const LoadEstmodel2 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-6, 0, 5);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel2(scene1, (Est) => { Est3 = Est; });
+        LoadEstmodel2(scene2, (Est) => { Est4 = Est; });
+
+        let Est5, Est6;
+        const LoadEstmodel3 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(6, 0, -3);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel3(scene1, (Est) => { Est5 = Est; });
+        LoadEstmodel3(scene2, (Est) => { Est6 = Est; });
+
+        let Est7, Est8;
+        const LoadEstmodel4 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(6, 0, 5);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel4(scene1, (Est) => { Est7 = Est; });
+        LoadEstmodel4(scene2, (Est) => { Est8 = Est; });
+
+
+
+        let Est9, Est10;
+        const LoadEstmodel5 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-6.5, 0, -2.5);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel5(scene1, (Est) => { Est9 = Est; });
+        LoadEstmodel5(scene2, (Est) => { Est10 = Est; });
+
+        let Est11, Est12;
+        const LoadEstmodel6 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-6.5, 0, 4.5);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel6(scene1, (Est) => { Es11 = Est; });
+        LoadEstmodel6(scene2, (Est) => { Est12 = Est; });
+
+        let Est13, Est14;
+        const LoadEstmodel7 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(6.5, 0, -2.5);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel7(scene1, (Est) => { Est13 = Est; });
+        LoadEstmodel7(scene2, (Est) => { Est14 = Est; });
+
+        let Est15, Est16;
+        const LoadEstmodel8 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(6.5, 0, 4.5);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel8(scene1, (Est) => { Est15 = Est; });
+        LoadEstmodel8(scene2, (Est) => { Est16 = Est; });
+
+
+
+        let Est17, Est18;
+        const LoadEstmodel9 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-18.5, 0, -3);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel9(scene1, (Est) => { Est17 = Est; });
+        LoadEstmodel9(scene2, (Est) => { Est18 = Est; });
+
+        let Est19, Est20;
+        const LoadEstmodel10 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-18.5, 0, 5);
+                    object.rotation.y = -80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel10(scene1, (Est) => { Est19 = Est; });
+        LoadEstmodel10(scene2, (Est) => { Est20 = Est; });
+
+        let Est21, Est22;
+        const LoadEstmodel11 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(18.5, 0, -3);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel11(scene1, (Est) => { Est21 = Est; });
+        LoadEstmodel11(scene2, (Est) => { Est22 = Est; });
+
+        let Est23, Est24;
+        const LoadEstmodel12 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Estanteria/');
+            mtlLoader.load('Estanteria.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Estanteria/');
+                objLoader.load('Estanteria.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(18.5, 0, 5);
+                    object.rotation.y = 80.1;
+                    object.scale.set(2.5, 2.5, 2.5);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadEstmodel12(scene1, (Est) => { Est23 = Est; });
+        LoadEstmodel12(scene2, (Est) => { Est24 = Est; });
+
+        //Contenedor Carne
+
+        let ContC1, ContC2;
+        const LoadContCmodel = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Carne/');
+            mtlLoader.load('meat_container.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Carne/');
+                objLoader.load('meat_container.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(7, 0.9, -15);
+                    object.rotation.y = 3.14159;
+                    object.scale.set(1.2, 1.2, 1.2);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadContCmodel(scene1, (ContC) => { ContC1 = ContC; });
+        LoadContCmodel(scene2, (ContC) => { ContC2 = ContC; });
+
+        let ContC3, ContC4;
+        const LoadContCmodel2 = (scene, setVariable) => {
+            const mtlLoader = new MTLLoader();
+            mtlLoader.setPath('Modelos/Carne/');
+            mtlLoader.load('meat_container.mtl', (materials) => {
+                materials.preload();
+                const objLoader = new OBJLoader();
+                objLoader.setMaterials(materials);
+                objLoader.setPath('Modelos/Carne/');
+                objLoader.load('meat_container.obj', (object) => {
+                    const texture = textureLoader.load('Texturas/metal.jpg');
+                    texture.encoding = THREE.sRGBEncoding;
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            child.material.map = texture;
+                            child.material.color.set(0xFFFFFF);
+                        }
+                    });
+                    object.position.set(-7, 0.9, -15);
+                    object.rotation.y = 3.14159;
+                    object.scale.set(1.2, 1.2, 1.2);
+                    scene.add(object);
+                    setjugVariable(object);
+                });
+            });
+        };
+
+        LoadContCmodel2(scene1, (ContC) => { ContC3 = ContC; });
+        LoadContCmodel2(scene2, (ContC) => { ContC4 = ContC; });
+
+        const moveSpeed = 0.1;
+        const rotateSpeed = 0.02;
+        let velocity1 = new THREE.Vector3();
+        let velocity2 = new THREE.Vector3();
+        const acceleration = 0.01;
+        const deceleration = 0.98;
+
+        const keys1 = {};
+        const keys2 = {};
+
+        document.addEventListener('keydown', (e) => {
+            keys1[e.code] = true;
+            keys2[e.code] = true;
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys1[e.code] = false;
+            keys2[e.code] = false;
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (cart1) {
+                const direction1 = new THREE.Vector3();
+                cart1.getWorldDirection(direction1);
+                if (keys1['KeyW']) {
+                    velocity1.add(direction1.multiplyScalar(acceleration));
+                }
+                if (keys1['KeyS']) {
+                    velocity1.add(direction1.multiplyScalar(-acceleration));
+                }
+                if (keys1['KeyA']) {
+                    cart1.rotation.y += rotateSpeed;
+                }
+                if (keys1['KeyD']) {
+                    cart1.rotation.y -= rotateSpeed;
+                }
+                cart1.position.add(velocity1);
+                velocity1.multiplyScalar(deceleration);
+
+                camera1.position.set(cart1.position.x, cart1.position.y + 3, cart1.position.z + 5);
+                camera1.lookAt(cart1.position);
+            }
+
+            if (cart2) {
+                const direction2 = new THREE.Vector3();
+                cart2.getWorldDirection(direction2);
+                if (keys2['ArrowUp']) {
+                    velocity2.add(direction2.multiplyScalar(acceleration));
+                }
+                if (keys2['ArrowDown']) {
+                    velocity2.add(direction2.multiplyScalar(-acceleration));
+                }
+                if (keys2['ArrowLeft']) {
+                    cart2.rotation.y += rotateSpeed;
+                }
+                if (keys2['ArrowRight']) {
+                    cart2.rotation.y -= rotateSpeed;
+                }
+                cart2.position.add(velocity2);
+                velocity2.multiplyScalar(deceleration);
+
+                camera2.position.set(cart2.position.x, cart2.position.y + 3, cart2.position.z + 5);
+                camera2.lookAt(cart2.position);
+            }
+
+            renderer1.render(scene1, camera1);
+            renderer2.render(scene2, camera2);
+        }
+
+        animate();
+    </script>
+
+    <div class="divider"></div>
+</body>
+</html>
