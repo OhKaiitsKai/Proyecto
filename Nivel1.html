@@ -134,17 +134,17 @@
                 { path: 'Modelos/Productos/', file: 'tomato_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -3.5, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 } },
                 { path: 'Modelos/Productos/', file: 'chips_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -5.5, y: 2.2, z: -4 }, scale: { x: 4, y: 4, z: 4 } },
                 { path: 'Modelos/Productos/', file: 'burger_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 5.5, y: 2.4, z: -1 }, scale: { x: 4, y: 4, z: 4 } },
-                { path: 'Modelos/Productos/', file: 'donut_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -5.5, y: 2.4, z: 4 }, scale: { x: 4, y: 4, z: 4 } },
-                { path: 'Modelos/Productos/', file: 'drink_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 5.5, y: 2.3, z: 5 }, scale: { x: 3, y: 3, z: 3 } },
+                { path: 'Modelos/Productos/', file: 'donut_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -6.5, y: 2.4, z: 4 }, scale: { x: 4, y: 4, z: 4 } },
+                { path: 'Modelos/Productos/', file: 'drink_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 6.5, y: 2.3, z: 5 }, scale: { x: 3, y: 3, z: 3 } },
             ];
 
             const obstaclePositions = [
                 { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: 2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 } },
                 { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: -2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 } },
                 { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 } },
-                { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -6, y: 0, z: 5 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 } },
+                { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 } },
                 { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 } },
-                { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 6, y: 0, z: 5 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 } },
+                { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 } },
                 { path: 'Modelos/Carne/', file: 'meat_container', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 0, y: 0.9, z: 12 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
             ];
 
@@ -254,7 +254,7 @@
 
                 const collision1 = checkCollisions(cart1, cartBoundingBox1, itemBoundingBoxes, obstacleBoundingBoxes);
                 if (collision1) {
-                    cart1.position.add(velocity1.multiplyScalar(-1));
+                    cart1.position.add(velocity1.multiplyScalar(-.98));
                     velocity1.set(0, 0, 0);
                 }
                 velocity1.multiplyScalar(deceleration);
@@ -282,7 +282,7 @@
 
                 const collision2 = checkCollisions(cart2, cartBoundingBox2, itemBoundingBoxes, obstacleBoundingBoxes);
                 if (collision2) {
-                    cart2.position.add(velocity2.multiplyScalar(-1));
+                    cart2.position.add(velocity2.multiplyScalar(-.98));
                     velocity2.set(0, 0, 0);
                 }
                 velocity2.multiplyScalar(deceleration);
