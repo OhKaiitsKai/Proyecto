@@ -106,9 +106,14 @@
         addSupermarketElements(scene1);
         addSupermarketElements(scene2);
 
-        const itemBoundingBoxes = [];
-        const itemPoints = [];
-        const obstacleBoundingBoxes = [];
+        const itemBoundingBoxes1 = [];
+        const itemBoundingBoxes2 = [];
+        const itemPoints1 = [];
+        const itemPoints2 = [];
+        const containerBoundingBoxes1 = [];
+        const containerBoundingBoxes2 = [];
+        const obstacleBoundingBoxes1 = [];
+        const obstacleBoundingBoxes2 = [];
 
         const addBoundingBox = (object, boundingBoxArray, pointsArray, points) => {
             const box = new THREE.Box3().setFromObject(object);
@@ -118,7 +123,7 @@
             }
         };
 
-        const loadModel = (path, file, texturePath, position, scale, rotation, scene, boundingBoxArray, pointsArray, points) => {
+        const loadModel = (path, file, texturePath, position, scale, rotation, group, boundingBoxArray, pointsArray, points) => {
             return new Promise((resolve, reject) => {
                 const mtlLoader = new MTLLoader();
                 mtlLoader.setPath(path);
@@ -141,7 +146,7 @@
                         if (rotation) {
                             object.rotation.set(rotation.x, rotation.y, rotation.z);
                         }
-                        scene.add(object);
+                        group.add(object);
                         addBoundingBox(object, boundingBoxArray, pointsArray, points);
                         resolve(object);
                     });
@@ -150,16 +155,16 @@
         };
 
         const itemPositions = [
-            { path: 'Modelos/Manzana/', file: 'uploads_files_3685626_FS-0011+Apples', texturePath: 'Modelos/Manzana/textures/Apple1_u1_v1_diffuse.jpg', position: { x: 2.3, y: 1.7, z: -8 }, scale: { x: 5, y: 5, z: 5 }, points: 10 },
-            { path: 'Modelos/Productos/', file: 'banana_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 3.5, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, points: 20 },
-            { path: 'Modelos/Productos/', file: 'carrot_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 1.3, y: 1.7, z: -8 }, scale: { x: 5, y: 5, z: 5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, points: 15 },
-            { path: 'Modelos/Productos/', file: 'eggplant_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -1.2, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, rotation: { x: 0, y: Math.PI / 18, z: 0 }, points: 25 },
-            { path: 'Modelos/Productos/', file: 'peach_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -2.3, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, points: 30 },
-            { path: 'Modelos/Productos/', file: 'tomato_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -3.5, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, points: 5 },
-            { path: 'Modelos/Productos/', file: 'chips_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -5.5, y: 2.2, z: -4 }, scale: { x: 4, y: 4, z: 4 }, points: 50 },
-            { path: 'Modelos/Productos/', file: 'burger_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 5.5, y: 2.4, z: -1 }, scale: { x: 4, y: 4, z: 4 }, points: 60 },
-            { path: 'Modelos/Productos/', file: 'donut_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -6.5, y: 2.4, z: 4 }, scale: { x: 4, y: 4, z: 4 }, points: 35 },
-            { path: 'Modelos/Productos/', file: 'drink_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 6.5, y: 2.3, z: 5 }, scale: { x: 3, y: 3, z: 3 }, points: 40 },
+            { path: 'Modelos/Manzana/', file: 'uploads_files_3685626_FS-0011+Apples', texturePath: 'Modelos/Manzana/textures/Apple1_u1_v1_diffuse.jpg', position: { x: 2.3, y: 1.7, z: -8 }, scale: { x: 5, y: 5, z: 5 }, points: 10, container: 'container1' },
+            { path: 'Modelos/Productos/', file: 'banana_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 3.5, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, rotation: { x: 0, y: Math.PI / 2, z: 0 }, points: 20, container: 'container1' },
+            { path: 'Modelos/Productos/', file: 'carrot_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 1.3, y: 1.7, z: -8 }, scale: { x: 5, y: 5, z: 5 }, rotation: { x: 0, y: Math.PI / 6, z: 0 }, points: 15, container: 'container1' },
+            { path: 'Modelos/Productos/', file: 'eggplant_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -1.2, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, rotation: { x: 0, y: Math.PI / 18, z: 0 }, points: 25, container: 'container2' },
+            { path: 'Modelos/Productos/', file: 'peach_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -2.3, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, points: 30, container: 'container2' },
+            { path: 'Modelos/Productos/', file: 'tomato_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -3.5, y: 1.7, z: -8 }, scale: { x: 4, y: 4, z: 4 }, points: 5, container: 'container2' },
+            { path: 'Modelos/Productos/', file: 'chips_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -5.5, y: 2.2, z: -4 }, scale: { x: 4, y: 4, z: 4 }, points: 50, container: 'container3' },
+            { path: 'Modelos/Productos/', file: 'burger_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 5.5, y: 2.4, z: -1 }, scale: { x: 4, y: 4, z: 4 }, points: 60, container: 'container3' },
+            { path: 'Modelos/Productos/', file: 'donut_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: -6.5, y: 2.4, z: 4 }, scale: { x: 4, y: 4, z: 4 }, points: 35, container: 'container4' },
+            { path: 'Modelos/Productos/', file: 'drink_001', texturePath: 'Modelos/Productos/Textures.png', position: { x: 6.5, y: 2.3, z: 5 }, scale: { x: 3, y: 3, z: 3 }, points: 40, container: 'container4' },
         ];
 
         const obstaclePositions = [
@@ -173,11 +178,33 @@
         ];
 
         const loadItemsAndObstacles = async () => {
+            const containerGroups1 = {};
+            const containerGroups2 = {};
+
+            // Create groups for each container
+            for (const item of itemPositions) {
+                if (!containerGroups1[item.container]) {
+                    containerGroups1[item.container] = new THREE.Group();
+                    containerGroups2[item.container] = new THREE.Group();
+                    scene1.add(containerGroups1[item.container]);
+                    scene2.add(containerGroups2[item.container]);
+
+                    // Create a bounding box for the container
+                    const containerBoundingBox1 = new THREE.Box3();
+                    containerBoundingBox1.setFromObject(containerGroups1[item.container]);
+                    containerBoundingBoxes1.push(containerBoundingBox1);
+
+                    const containerBoundingBox2 = new THREE.Box3();
+                    containerBoundingBox2.setFromObject(containerGroups2[item.container]);
+                    containerBoundingBoxes2.push(containerBoundingBox2);
+                }
+            }
+
             await Promise.all([
-                ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, scene1, itemBoundingBoxes, itemPoints, item.points)),
-                ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, scene2, itemBoundingBoxes, itemPoints, item.points)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes)),
+                ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups1[item.container], itemBoundingBoxes1, itemPoints1, item.points)),
+                ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups2[item.container], itemBoundingBoxes2, itemPoints2, item.points)),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes1)),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes2)),
             ]);
         };
 
@@ -215,9 +242,17 @@
         loadCartModel(scene1, (cart) => { cart1 = cart; }, cartBoundingBox1);
         loadCartModel(scene2, (cart) => { cart2 = cart; }, cartBoundingBox2);
 
-        const checkCollisions = (cart, cartBoundingBox, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes) => {
+        const shelfFruits = {
+            'container1': ['uploads_files_3685626_FS-0011+Apples', 'banana_001', 'carrot_001'],
+            'container2': ['eggplant_001', 'peach_001', 'tomato_001'],
+            'container3': ['chips_001', 'burger_001'],
+            'container4': ['donut_001', 'drink_001'],
+        };
+
+        const checkCollisions = (cart, cartBoundingBox, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes, containerBoundingBoxes, shelfFruits) => {
             cartBoundingBox.setFromObject(cart);
 
+            // Check collision with items
             for (let i = 0; i < itemBoundingBoxes.length; i++) {
                 const box = itemBoundingBoxes[i];
                 if (cartBoundingBox.intersectsBox(box)) {
@@ -228,9 +263,30 @@
                 }
             }
 
+            // Check collision with obstacles
             for (const box of obstacleBoundingBoxes) {
                 if (cartBoundingBox.intersectsBox(box)) {
                     return { type: 'obstacle' };
+                }
+            }
+
+            // Check collision with shelves
+            for (let i = 0; i < containerBoundingBoxes.length; i++) {
+                const box = containerBoundingBoxes[i];
+                if (cartBoundingBox.intersectsBox(box)) {
+                    const containerName = Object.keys(containerGroups1)[i]; // Assuming containerGroups1 and containerGroups2 have the same keys
+                    const fruits = shelfFruits[containerName] || [];
+                    let points = 0;
+                    for (let j = 0; j < itemPositions.length; j++) {
+                        if (fruits.includes(itemPositions[j].file)) {
+                            points += itemPositions[j].points;
+                            // Remove collected items from the scene and bounding boxes
+                            itemBoundingBoxes.splice(j, 1);
+                            itemPoints.splice(j, 1);
+                            j--; // Adjust index after removal
+                        }
+                    }
+                    return { type: 'shelf', points: points };
                 }
             }
 
@@ -299,13 +355,16 @@
                 }
                 cart1.position.add(velocity1);
 
-                const collision1 = checkCollisions(cart1, cartBoundingBox1, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes);
+                const collision1 = checkCollisions(cart1, cartBoundingBox1, itemBoundingBoxes1, itemPoints1, obstacleBoundingBoxes1, containerBoundingBoxes1, shelfFruits);
                 if (collision1 && collision1.type === 'item') {
                     score1 += collision1.points;
                     updateScore(1, score1);
                 } else if (collision1 && collision1.type === 'obstacle') {
                     cart1.position.add(velocity1.multiplyScalar(-.98));
                     velocity1.set(0, 0, 0);
+                } else if (collision1 && collision1.type === 'shelf') {
+                    score1 += collision1.points;
+                    updateScore(1, score1);
                 }
                 velocity1.multiplyScalar(deceleration);
 
@@ -330,13 +389,16 @@
                 }
                 cart2.position.add(velocity2);
 
-                const collision2 = checkCollisions(cart2, cartBoundingBox2, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes);
+                const collision2 = checkCollisions(cart2, cartBoundingBox2, itemBoundingBoxes2, itemPoints2, obstacleBoundingBoxes2, containerBoundingBoxes2, shelfFruits);
                 if (collision2 && collision2.type === 'item') {
                     score2 += collision2.points;
                     updateScore(2, score2);
                 } else if (collision2 && collision2.type === 'obstacle') {
                     cart2.position.add(velocity2.multiplyScalar(-.98));
                     velocity2.set(0, 0, 0);
+                } else if (collision2 && collision2.type === 'shelf') {
+                    score2 += collision2.points;
+                    updateScore(2, score2);
                 }
                 velocity2.multiplyScalar(deceleration);
 
@@ -354,6 +416,7 @@
     <div class="divider"></div>
 </body>
 </html>
+
 
 
 
