@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantry Pursuit: Supermarket</title>
     <style>
@@ -37,7 +36,7 @@
 </head>
 <body>
     <div id="scoreboard">
-        Player 1 Score: <span id="score1">0</span> | Player 2 Score: <span id="score2">0</span>
+        <span id="player1Name"></span> Score: <span id="score1">0</span> | <span id="player2Name"></span> Score: <span id="score2">0</span>
     </div>
     <div id="timer">Time Left: <span id="time">60</span> seconds</div>
     <script type="module">
@@ -45,6 +44,11 @@
         import { OrbitControls } from "./OrbitControls.js";
         import { MTLLoader } from "./MTLLoader.js";
         import { OBJLoader } from "./OBJLoader.js";
+
+        const player1Name = localStorage.getItem('player1Name');
+        const player2Name = localStorage.getItem('player2Name');
+        document.getElementById('player1Name').textContent = player1Name;
+        document.getElementById('player2Name').textContent = player2Name;
 
         const scene1 = new THREE.Scene();
         const scene2 = new THREE.Scene();
@@ -114,6 +118,7 @@
         const containerBoundingBoxes2 = [];
         const obstacleBoundingBoxes1 = [];
         const obstacleBoundingBoxes2 = [];
+        const obstaclePoints = [];
 
         const addBoundingBox = (object, boundingBoxArray, pointsArray, points) => {
             const box = new THREE.Box3().setFromObject(object);
@@ -168,13 +173,13 @@
         ];
 
         const obstaclePositions = [
-            { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: 2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 } },
-            { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: -2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 } },
-            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 } },
-            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 } },
-            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 } },
-            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 } },
-            { path: 'Modelos/Carne/', file: 'meat_container', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 0, y: 0.9, z: 12 }, scale: { x: 1.2, y: 1.2, z: 1.2 } },
+            { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: 2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 }, points: 10, associatedItems: ['uploads_files_3685626_FS-0011+Apples', 'banana_001', 'carrot_001'] },
+            { path: 'Modelos/Frutas/', file: 'Frutas_Container', texturePath: 'Modelos/Jugo/depositphotos_666327950-stock-illustration-strawberry-clipart-seamless-pattern-bundle.jpg', position: { x: -2.3, y: 0.8, z: -8 }, scale: { x: 1, y: 1, z: 1 }, points: 25, associatedItems: ['eggplant_001', 'peach_001', 'tomato_001'] },
+            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 }, points: 50, associatedItems: ['chips_001', 'burger_001'] },
+            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: -7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: 80.1 * Math.PI / 180, z: 0 }, points: 35, associatedItems: ['donut_001', 'drink_001'] },
+            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 6, y: 0, z: -3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 }, points: 50, associatedItems: ['chips_001', 'burger_001'] },
+            { path: 'Modelos/Estanteria/', file: 'Estanteria', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 7, y: 0, z: 3 }, scale: { x: 2.5, y: 2.5, z: 2.5 }, rotation: { x: 0, y: -80.1 * Math.PI / 180, z: 0 }, points: 35, associatedItems: ['donut_001', 'drink_001'] },
+            { path: 'Modelos/Carne/', file: 'meat_container', texturePath: 'Modelos/Lata/TinCan4Metal.png', position: { x: 0, y: 0.9, z: 12 }, scale: { x: 1.2, y: 1.2, z: 1.2 }, points: 0, associatedItems: [] },
         ];
 
         const loadItemsAndObstacles = async () => {
@@ -203,8 +208,8 @@
             await Promise.all([
                 ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups1[item.container], itemBoundingBoxes1, itemPoints1, item.points)),
                 ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups2[item.container], itemBoundingBoxes2, itemPoints2, item.points)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes1)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes2)),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes1, obstaclePoints, obstacle.points)),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes2, obstaclePoints, obstacle.points)),
             ]);
         };
 
@@ -264,9 +269,15 @@
             }
 
             // Check collision with obstacles
-            for (const box of obstacleBoundingBoxes) {
+            for (let i = 0; i < obstacleBoundingBoxes.length; i++) {
+                const box = obstacleBoundingBoxes[i];
                 if (cartBoundingBox.intersectsBox(box)) {
-                    return { type: 'obstacle' };
+                    const points = obstaclePoints[i];
+                    if (points > 0) {
+                        return { type: 'obstacle', points: points };
+                    } else {
+                        return { type: 'obstacle', points: 0 }; // No points for this obstacle
+                    }
                 }
             }
 
@@ -325,11 +336,19 @@
             document.getElementById('time').textContent = timeLeft;
         };
 
+        const saveScore = (name, score) => {
+            const scores = JSON.parse(localStorage.getItem('scores')) || [];
+            scores.push({ name, score });
+            localStorage.setItem('scores', JSON.stringify(scores));
+        };
+
         const timer = setInterval(() => {
             timeLeft--;
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                alert(`Game Over! Final Scores: Player 1: ${score1}, Player 2: ${score2}`);
+                saveScore(player1Name, score1);
+                saveScore(player2Name, score2);
+                alert(`Game Over! Final Scores: ${player1Name}: ${score1}, ${player2Name}: ${score2}`);
                 window.location.reload();
             }
             updateTime();
@@ -360,6 +379,10 @@
                     score1 += collision1.points;
                     updateScore(1, score1);
                 } else if (collision1 && collision1.type === 'obstacle') {
+                    if (collision1.points > 0) {
+                        score1 += collision1.points; // Add points for obstacle collision
+                        updateScore(1, score1);
+                    }
                     cart1.position.add(velocity1.multiplyScalar(-.98));
                     velocity1.set(0, 0, 0);
                 } else if (collision1 && collision1.type === 'shelf') {
@@ -394,6 +417,10 @@
                     score2 += collision2.points;
                     updateScore(2, score2);
                 } else if (collision2 && collision2.type === 'obstacle') {
+                    if (collision2.points > 0) {
+                        score2 += collision2.points; // Add points for obstacle collision
+                        updateScore(2, score2);
+                    }
                     cart2.position.add(velocity2.multiplyScalar(-.98));
                     velocity2.set(0, 0, 0);
                 } else if (collision2 && collision2.type === 'shelf') {
@@ -416,6 +443,9 @@
     <div class="divider"></div>
 </body>
 </html>
+
+
+
 
 
 

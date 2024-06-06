@@ -1,37 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pantry Pursuit: Bagged Challenge</title>
     <link rel="stylesheet" href="index.css">
-  </head>
-  <body class="body">
-
+</head>
+<body class="body">
     <div class="Menu">
-        
-
         <form>
-
             <h1 class="Titulo1">Puntuación</h1>
-
-            <ol class="Puntuacion">
-
-                <li>Jugador 1</li>
-                <li>Jugador 2</li>
-                <li>Jugador 3</li>
-                <li>Jugador 4</li>
-                <li>Jugador 5</li>
-
-            </ol> 
-
+            <ol id="scoreList" class="Puntuacion"></ol>
             <br>
-
-            <button type="button" onclick="window.location.href='index.html'"><p>Salir</p></button>
-
+            <button type="button" onclick="window.location.href='index.html'">Salir</button>
         </form>
-
     </div>
+    <script>
+        const loadScores = () => {
+            const scoreList = document.getElementById('scoreList');
+            const scores = JSON.parse(localStorage.getItem('scores')) || [];
+            
+            // Ordenar las puntuaciones de mayor a menor
+            scores.sort((a, b) => b.score - a.score);
+            
+            // Tomar las primeras 5 puntuaciones
+            const topScores = scores.slice(0, 5);
 
-  </body>
+            scoreList.innerHTML = '';
+            topScores.forEach(score => {
+                const li = document.createElement('li');
+                li.textContent = `${score.name}: ${score.score}`;
+                scoreList.appendChild(li);
+            });
+        };
+
+        window.onload = loadScores;
+    </script>
+</body>
 </html>
