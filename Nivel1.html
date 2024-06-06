@@ -119,6 +119,8 @@
         const obstacleBoundingBoxes1 = [];
         const obstacleBoundingBoxes2 = [];
         const obstaclePoints = [];
+        const obstacleGroups1 = [];
+        const obstacleGroups2 = [];
 
         const addBoundingBox = (object, boundingBoxArray, pointsArray, points) => {
             const box = new THREE.Box3().setFromObject(object);
@@ -208,8 +210,8 @@
             await Promise.all([
                 ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups1[item.container], itemBoundingBoxes1, itemPoints1, item.points)),
                 ...itemPositions.map(item => loadModel(item.path, item.file, item.texturePath, item.position, item.scale, item.rotation, containerGroups2[item.container], itemBoundingBoxes2, itemPoints2, item.points)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes1, obstaclePoints, obstacle.points)),
-                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes2, obstaclePoints, obstacle.points)),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene1, obstacleBoundingBoxes1, obstaclePoints, obstacle.points).then(object => obstacleGroups1.push(object))),
+                ...obstaclePositions.map(obstacle => loadModel(obstacle.path, obstacle.file, obstacle.texturePath, obstacle.position, obstacle.scale, obstacle.rotation, scene2, obstacleBoundingBoxes2, obstaclePoints, obstacle.points).then(object => obstacleGroups2.push(object))),
             ]);
         };
 
@@ -254,7 +256,137 @@
             'container4': ['donut_001', 'drink_001'],
         };
 
-        const checkCollisions = (cart, cartBoundingBox, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes, containerBoundingBoxes, shelfFruits) => {
+        let goldenObstacle = null;
+        let goldenObstacleTimeout = null;
+
+        const makeObstacleGolden = () => {
+            const randomIndex = Math.floor(Math.random() * obstacleGroups1.length);
+            goldenObstacle = randomIndex;
+            const obstacleGroup1 = obstacleGroups1[goldenObstacle];
+            const obstacleGroup2 = obstacleGroups2[goldenObstacle];
+
+            obstacleGroup1.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.color.set(0xFFD700); // Gold color
+                }
+            });
+
+            obstacleGroup2.traverse((child) => {
+                if (child.isMesh) {
+                    child.material.color.set(0xFFD700); // Gold color
+                }
+            });
+
+            goldenObstacleTimeout = setTimeout(() => {
+                obstacleGroup1.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.set(0xFFFFFF); // Reset to white color
+                    }
+                });
+
+                obstacleGroup2.traverse((child) => {
+                    if (child.isMesh) {
+                        child.material.color.set(0xFFFFFF); // Reset to white color
+                    }
+                });
+
+                goldenObstacle = null;
+            }, 10000); // 10 seconds
+        };
+
+        // Crear la caja rosa
+        let pinkBox1, pinkBox2;
+        const pinkBoxBoundingBox1 = new THREE.Box3();
+        const pinkBoxBoundingBox2 = new THREE.Box3();
+        let pinkBoxCollected = false;
+
+        const createPinkBox = (scene, setPinkBoxVariable, pinkBoxBoundingBox) => {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ color: 0xFFC0CB });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(0, 0.5, 7);
+            scene.add(box);
+            setPinkBoxVariable(box);
+            pinkBoxBoundingBox.setFromObject(box);
+        };
+
+        createPinkBox(scene1, (box) => { pinkBox1 = box; }, pinkBoxBoundingBox1);
+        createPinkBox(scene2, (box) => { pinkBox2 = box; }, pinkBoxBoundingBox2);
+
+        // Crear el ticket verde
+        let ticket1, ticket2;
+        const ticketBoundingBox1 = new THREE.Box3();
+        const ticketBoundingBox2 = new THREE.Box3();
+        let ticketCollected = false;
+        let ticketVisible = false;
+
+        const createTicket = (scene, setTicketVariable, ticketBoundingBox) => {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ color: 0x00FF00 }); // Verde
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(3, 0.5, -4);
+            scene.add(box);
+            setTicketVariable(box);
+            ticketBoundingBox.setFromObject(box);
+            box.visible = false; // Ocultar inicialmente
+        };
+
+        createTicket(scene1, (ticket) => { ticket1 = ticket; }, ticketBoundingBox1);
+        createTicket(scene2, (ticket) => { ticket2 = ticket; }, ticketBoundingBox2);
+
+        // Mostrar el ticket después de 15 segundos
+        setTimeout(() => {
+            ticket1.visible = true;
+            ticket2.visible = true;
+            ticketVisible = true;
+        }, 15000);
+
+        // Crear el ticket morado
+        let purpleTicket1, purpleTicket2;
+        const purpleTicketBoundingBox1 = new THREE.Box3();
+        const purpleTicketBoundingBox2 = new THREE.Box3();
+        let purpleTicketCollected = false;
+        let purpleTicketVisible = false;
+
+        const createPurpleTicket = (scene, setPurpleTicketVariable, purpleTicketBoundingBox) => {
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshLambertMaterial({ color: 0x800080 }); // Morado
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(3, 0.5, -2);
+            scene.add(box);
+            setPurpleTicketVariable(box);
+            purpleTicketBoundingBox.setFromObject(box);
+            box.visible = false; // Ocultar inicialmente
+        };
+
+        createPurpleTicket(scene1, (purpleTicket) => { purpleTicket1 = purpleTicket; }, purpleTicketBoundingBox1);
+        createPurpleTicket(scene2, (purpleTicket) => { purpleTicket2 = purpleTicket; }, purpleTicketBoundingBox2);
+
+        // Mostrar el ticket morado después de 25 segundos
+        setTimeout(() => {
+            purpleTicket1.visible = true;
+            purpleTicket2.visible = true;
+            purpleTicketVisible = true;
+        }, 25000);
+
+        let player1Frozen = false;
+        let player2Frozen = false;
+
+        const freezePlayer = (player) => {
+            if (player === 1) {
+                player1Frozen = true;
+                setTimeout(() => {
+                    player1Frozen = false;
+                }, 6000);
+            } else if (player === 2) {
+                player2Frozen = true;
+                setTimeout(() => {
+                    player2Frozen = false;
+                }, 6000);
+            }
+        };
+
+        const checkCollisions = (cart, cartBoundingBox, itemBoundingBoxes, itemPoints, obstacleBoundingBoxes, containerBoundingBoxes, shelfFruits, pinkBox, pinkBoxBoundingBox, ticket, ticketBoundingBox, purpleTicket, purpleTicketBoundingBox, player) => {
             cartBoundingBox.setFromObject(cart);
 
             // Check collision with items
@@ -272,12 +404,11 @@
             for (let i = 0; i < obstacleBoundingBoxes.length; i++) {
                 const box = obstacleBoundingBoxes[i];
                 if (cartBoundingBox.intersectsBox(box)) {
-                    const points = obstaclePoints[i];
-                    if (points > 0) {
-                        return { type: 'obstacle', points: points };
-                    } else {
-                        return { type: 'obstacle', points: 0 }; // No points for this obstacle
+                    let points = obstaclePoints[i];
+                    if (goldenObstacle === i) {
+                        points *= 2; // Double points if the obstacle is golden
                     }
+                    return { type: 'obstacle', points: points };
                 }
             }
 
@@ -298,6 +429,40 @@
                         }
                     }
                     return { type: 'shelf', points: points };
+                }
+            }
+
+            // Check collision with the pink box
+            if (cartBoundingBox.intersectsBox(pinkBoxBoundingBox) && !pinkBoxCollected) {
+                pinkBoxCollected = true;
+                scene1.remove(pinkBox1);
+                scene2.remove(pinkBox2);
+                return { type: 'pinkBox', points: 150 };
+            }
+
+            // Check collision with the green ticket
+            if (ticketVisible && cartBoundingBox.intersectsBox(ticketBoundingBox) && !ticketCollected) {
+                ticketCollected = true;
+                scene1.remove(ticket1);
+                scene2.remove(ticket2);
+                if (player === 1) {
+                    return { type: 'ticket', points: -50, opponent: 2 };
+                } else {
+                    return { type: 'ticket', points: -50, opponent: 1 };
+                }
+            }
+
+            // Check collision with the purple ticket
+            if (purpleTicketVisible && cartBoundingBox.intersectsBox(purpleTicketBoundingBox) && !purpleTicketCollected) {
+                purpleTicketCollected = true;
+                scene1.remove(purpleTicket1);
+                scene2.remove(purpleTicket2);
+                if (player === 1) {
+                    freezePlayer(2);
+                    return { type: 'purpleTicket', points: 0 };
+                } else {
+                    freezePlayer(1);
+                    return { type: 'purpleTicket', points: 0 };
                 }
             }
 
@@ -346,6 +511,7 @@
             timeLeft--;
             if (timeLeft <= 0) {
                 clearInterval(timer);
+                clearInterval(goldenTimer);
                 saveScore(player1Name, score1);
                 saveScore(player2Name, score2);
                 alert(`Game Over! Final Scores: ${player1Name}: ${score1}, ${player2Name}: ${score2}`);
@@ -354,10 +520,12 @@
             updateTime();
         }, 1000);
 
+        const goldenTimer = setInterval(makeObstacleGolden, 20000); // Make an obstacle golden every 20 seconds
+
         function animate() {
             requestAnimationFrame(animate);
 
-            if (cart1) {
+            if (cart1 && !player1Frozen) {
                 const direction1 = new THREE.Vector3();
                 cart1.getWorldDirection(direction1);
                 if (keys1['KeyW']) {
@@ -374,20 +542,28 @@
                 }
                 cart1.position.add(velocity1);
 
-                const collision1 = checkCollisions(cart1, cartBoundingBox1, itemBoundingBoxes1, itemPoints1, obstacleBoundingBoxes1, containerBoundingBoxes1, shelfFruits);
+                const collision1 = checkCollisions(cart1, cartBoundingBox1, itemBoundingBoxes1, itemPoints1, obstacleBoundingBoxes1, containerBoundingBoxes1, shelfFruits, pinkBox1, pinkBoxBoundingBox1, ticket1, ticketBoundingBox1, purpleTicket1, purpleTicketBoundingBox1, 1);
                 if (collision1 && collision1.type === 'item') {
                     score1 += collision1.points;
                     updateScore(1, score1);
                 } else if (collision1 && collision1.type === 'obstacle') {
-                    if (collision1.points > 0) {
-                        score1 += collision1.points; // Add points for obstacle collision
-                        updateScore(1, score1);
-                    }
+                    score1 += collision1.points; // Add points for obstacle collision
+                    updateScore(1, score1);
                     cart1.position.add(velocity1.multiplyScalar(-.98));
                     velocity1.set(0, 0, 0);
                 } else if (collision1 && collision1.type === 'shelf') {
                     score1 += collision1.points;
                     updateScore(1, score1);
+                } else if (collision1 && collision1.type === 'pinkBox') {
+                    score1 += collision1.points;
+                    updateScore(1, score1);
+                } else if (collision1 && collision1.type === 'ticket') {
+                    if (collision1.opponent === 2) {
+                        score2 += collision1.points;
+                        updateScore(2, score2);
+                    }
+                } else if (collision1 && collision1.type === 'purpleTicket') {
+                    // Effect already handled in checkCollisions
                 }
                 velocity1.multiplyScalar(deceleration);
 
@@ -395,7 +571,7 @@
                 camera1.lookAt(cart1.position);
             }
 
-            if (cart2) {
+            if (cart2 && !player2Frozen) {
                 const direction2 = new THREE.Vector3();
                 cart2.getWorldDirection(direction2);
                 if (keys2['ArrowUp']) {
@@ -412,20 +588,28 @@
                 }
                 cart2.position.add(velocity2);
 
-                const collision2 = checkCollisions(cart2, cartBoundingBox2, itemBoundingBoxes2, itemPoints2, obstacleBoundingBoxes2, containerBoundingBoxes2, shelfFruits);
+                const collision2 = checkCollisions(cart2, cartBoundingBox2, itemBoundingBoxes2, itemPoints2, obstacleBoundingBoxes2, containerBoundingBoxes2, shelfFruits, pinkBox2, pinkBoxBoundingBox2, ticket2, ticketBoundingBox2, purpleTicket2, purpleTicketBoundingBox2, 2);
                 if (collision2 && collision2.type === 'item') {
                     score2 += collision2.points;
                     updateScore(2, score2);
                 } else if (collision2 && collision2.type === 'obstacle') {
-                    if (collision2.points > 0) {
-                        score2 += collision2.points; // Add points for obstacle collision
-                        updateScore(2, score2);
-                    }
+                    score2 += collision2.points; // Add points for obstacle collision
+                    updateScore(2, score2);
                     cart2.position.add(velocity2.multiplyScalar(-.98));
                     velocity2.set(0, 0, 0);
                 } else if (collision2 && collision2.type === 'shelf') {
                     score2 += collision2.points;
                     updateScore(2, score2);
+                } else if (collision2 && collision2.type === 'pinkBox') {
+                    score2 += collision2.points;
+                    updateScore(2, score2);
+                } else if (collision2 && collision2.type === 'ticket') {
+                    if (collision2.opponent === 1) {
+                        score1 += collision2.points;
+                        updateScore(1, score1);
+                    }
+                } else if (collision2 && collision2.type === 'purpleTicket') {
+                    // Effect already handled in checkCollisions
                 }
                 velocity2.multiplyScalar(deceleration);
 
@@ -443,11 +627,3 @@
     <div class="divider"></div>
 </body>
 </html>
-
-
-
-
-
-
-
-
