@@ -4,8 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pantry Pursuit: Supermarket</title>
+    <style>
+        #timer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
+    <div id="timer">Time: 60</div>
     <script type="module">
         import * as THREE from "./three.module.js";
         import { OrbitControls } from "./OrbitControls.js";
@@ -58,7 +71,7 @@
 
         addSupermarketElements(scene);
 
-        //JUGADOR
+        // JUGADOR
 
         let cart;
         let cartBox;
@@ -114,7 +127,20 @@
         // Movimiento del enemigo
         const enemySpeed = 0.05;
 
-        //ITEMS
+        // Temporizador
+        let timeLeft = 60;
+        const timerElement = document.getElementById('timer');
+        const countdown = setInterval(() => {
+            timeLeft -= 1;
+            timerElement.textContent = `Time: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                alert("¡Has ganado! Has sobrevivido al tiempo límite.");
+                window.location.reload();
+            }
+        }, 1000);
+
+        // ITEMS
 
         let Manzana = false;
         let Banana = false;
@@ -131,7 +157,7 @@
         let Bebida3 = false;
         let Bebida4 = false;
 
-        //Manzana
+        // Manzana
 
         let man;
         const LoadManzanamodel = (scene, setmanVariable) => {
@@ -161,7 +187,7 @@
 
         LoadManzanamodel(scene, (man) => { man = man; });
 
-        //Banana
+        // Banana
 
         let Ban;
         const LoadBananamodel = (scene, setmanVariable) => {
@@ -192,7 +218,7 @@
 
         LoadBananamodel(scene, (Ban) => { Ban = Ban; });
 
-        //Zanahoria
+        // Zanahoria
 
         let Zan;
         const LoadZanahoriamodel = (scene, setmanVariable) => {
@@ -223,7 +249,7 @@
 
         LoadZanahoriamodel(scene, (Zan) => { Zan = Zan; });
 
-        //Berengena
+        // Berengena
 
         let Ben;
         const LoadBerengenamodel = (scene, setmanVariable) => {
@@ -254,7 +280,7 @@
 
         LoadBerengenamodel(scene, (Ben) => { Ben = Ben; });
 
-        //Durazno
+        // Durazno
 
         let Dur;
         const LoadDuraznomodel = (scene, setmanVariable) => {
@@ -284,7 +310,7 @@
 
         LoadDuraznomodel(scene, (Dur) => { Dur = Dur; });
 
-        //Tomate
+        // Tomate
 
         let Tom;
         const LoadTomatemodel = (scene, setmanVariable) => {
@@ -314,7 +340,7 @@
 
         LoadTomatemodel(scene, (Tom) => { Tom = Tom; });
 
-        //Papita
+        // Papita
 
         let Pap;
         const LoadPapitasmodel = (scene, setmanVariable) => {
@@ -344,7 +370,7 @@
 
         LoadPapitasmodel(scene, (Pap) => { Pap = Pap; });
 
-        //Hamburguesa
+        // Hamburguesa
 
         let Bur;
         const LoadBurgermodel = (scene, setmanVariable) => {
@@ -374,7 +400,7 @@
 
         LoadBurgermodel(scene, (Bur) => { Bur = Bur; });
 
-        //Dona
+        // Dona
 
         let Don;
         const LoadDonamodel = (scene, setmanVariable) => {
@@ -404,7 +430,7 @@
 
         LoadDonamodel(scene, (Don) => { Don = Don; });
 
-        //Bebida 1
+        // Bebida 1
 
         let Beb;
         const LoadBebidamodel = (scene, setmanVariable) => {
@@ -434,7 +460,7 @@
 
         LoadBebidamodel(scene, (Beb) => { Beb = Beb; });
         
-        //Bebida 2
+        // Bebida 2
 
         let Beb2;
         const LoadBebidamodel2 = (scene, setmanVariable) => {
@@ -464,7 +490,7 @@
 
         LoadBebidamodel2(scene, (Beb2) => { Beb2 = Beb2; });
         
-        //Bebida 3
+        // Bebida 3
 
         let Beb3;
         const LoadBebidamodel3 = (scene, setmanVariable) => {
@@ -494,7 +520,7 @@
 
         LoadBebidamodel3(scene, (Beb3) => { Beb3 = Beb3; });
 
-        //Bebida 4
+        // Bebida 4
 
         let Beb4;
         const LoadBebidamodel4 = (scene, setmanVariable) => {
@@ -524,9 +550,9 @@
 
         LoadBebidamodel4(scene, (Beb4) => { Beb4 = Beb4; });
 
-        //ESCENARIOS
+        // ESCENARIOS
         //
-        //Contenedores Frutas
+        // Contenedores Frutas
 
         let ContF1, ContF2;
         const LoadContFmodel1 = (scene, setjugVariable) => {
@@ -584,7 +610,7 @@
         LoadContFmodel2(scene, (ContF) => { ContF3 = ContF; contF3Box = createBoundingBox(ContF); });
         LoadContFmodel2(scene, (ContF) => { ContF4 = ContF; contF4Box = createBoundingBox(ContF); });
 
-        //Estanterias
+        // Estanterias
 
         let Est1, Est2;
         const LoadEstmodel = (scene, setVariable) => {
@@ -826,7 +852,7 @@
         LoadEstmodel8(scene, (Est) => { Est15 = Est; est15Box = createBoundingBox(Est); });
         LoadEstmodel8(scene, (Est) => { Est16 = Est; est16Box = createBoundingBox(Est); });
 
-        //Contenedor Carne
+        // Contenedor Carne
 
         let ContC1, ContC2;
         const LoadContCmodel = (scene, setVariable) => {
@@ -953,6 +979,7 @@
 
                 // Detectar colisión con el carrito
                 if (cartBox.intersectsBox(enemyBox)) {
+                    clearInterval(countdown);
                     alert("¡Te ha atrapado el enemigo! Has perdido.");
                     window.location.reload();
                 }
@@ -994,7 +1021,6 @@
     </script>
 </body>
 </html>
-
 
 
        
