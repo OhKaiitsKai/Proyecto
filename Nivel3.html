@@ -160,20 +160,27 @@
         loadModel('Modelos/Carne/', 'meat_container.mtl', 'meat_container.obj', 'Texturas/metal.jpg', [7, 0.9, -15], [1.2, 1.2, 1.2], [0, 3.14159, 0], scene);
         loadModel('Modelos/Carne/', 'meat_container.mtl', 'meat_container.obj', 'Texturas/metal.jpg', [-7, 0.9, -15], [1.2, 1.2, 1.2], [0, 3.14159, 0], scene);
 
-        // Create enemy
-        const enemyGeometry = new THREE.BoxGeometry(1, 1, 1);
-        const enemyMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-        const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
-        enemy.position.set(0, 0.5, 10);
-        scene.add(enemy);
+        // Create enemies
+        const enemies = [];
+        const enemyBoundingBoxes = [];
+        const numEnemies = 3; // Number of enemies
 
-        const enemyBoundingBox = new THREE.Box3().setFromObject(enemy);
+        for (let i = 0; i < numEnemies; i++) {
+            const enemyGeometry = new THREE.BoxGeometry(1, 1, 1);
+            const enemyMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const enemy = new THREE.Mesh(enemyGeometry, enemyMaterial);
+            enemy.position.set(Math.random() * 40 - 20, 0.5, Math.random() * 40 - 20);
+            scene.add(enemy);
+            enemies.push(enemy);
+            enemyBoundingBoxes.push(new THREE.Box3().setFromObject(enemy));
+        }
 
         const moveSpeed = 0.1;
         const rotateSpeed = 0.02;
         let velocity = new THREE.Vector3();
         const acceleration = 0.01;
         const deceleration = 0.98;
+        let enemySpeed = 0.05; // Initial enemy speed
 
         const keys = {};
 
@@ -187,7 +194,6 @@
 
         const detectCollisions = () => {
             cartBoundingBox.setFromObject(cart);
-            enemyBoundingBox.setFromObject(enemy);
 
             for (let i = 0; i < obstacleBoundingBoxes.length; i++) {
                 if (cartBoundingBox.intersectsBox(obstacleBoundingBoxes[i])) {
@@ -195,9 +201,12 @@
                 }
             }
 
-            if (cartBoundingBox.intersectsBox(enemyBoundingBox)) {
-                alert("You Lose! The enemy caught you!");
-                window.location.reload();
+            for (let i = 0; i < enemyBoundingBoxes.length; i++) {
+                enemyBoundingBoxes[i].setFromObject(enemies[i]);
+                if (cartBoundingBox.intersectsBox(enemyBoundingBoxes[i])) {
+                    alert("You Lose! The enemy caught you!");
+                    window.location.reload();
+                }
             }
 
             return false;
@@ -229,13 +238,18 @@
                     velocity.set(0, 0, 0); // Stop the cart's movement
                 }
 
-                // Enemy follows the cart
-                const enemyDirection = new THREE.Vector3().subVectors(cart.position, enemy.position).normalize();
-                enemy.position.add(enemyDirection.multiplyScalar(0.05));
+                // Enemies follow the cart
+                enemies.forEach(enemy => {
+                    const enemyDirection = new THREE.Vector3().subVectors(cart.position, enemy.position).normalize();
+                    enemy.position.add(enemyDirection.multiplyScalar(enemySpeed));
+                });
 
                 camera.position.set(cart.position.x, cart.position.y + 3, cart.position.z + 5);
                 camera.lookAt(cart.position);
             }
+
+            // Increase enemy speed over time
+            enemySpeed += 0.0001;
 
             renderer.render(scene, camera);
         }
@@ -244,3 +258,4 @@
     </script>
 </body>
 </html>
+
