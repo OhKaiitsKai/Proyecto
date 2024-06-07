@@ -9,10 +9,22 @@
         body {
             margin: 0;
             overflow: hidden;
+            position: relative;
+        }
+        #timer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
+    <div id="timer">Time: 60</div>
     <script type="module">
         import * as THREE from "./three.module.js";
         import { OrbitControls } from "./OrbitControls.js";
@@ -212,6 +224,31 @@
             return false;
         };
 
+        const startTimer = (duration, display) => {
+            let timer = duration, minutes, seconds;
+            const interval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = "Time: " + minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(interval);
+                    alert("Time's up! You win!");
+                    window.location.reload();
+                }
+            }, 1000);
+        };
+
+        window.onload = () => {
+            const timeLimit = 60; // 1 minute
+            const display = document.querySelector('#timer');
+            startTimer(timeLimit, display);
+        };
+
         function animate() {
             requestAnimationFrame(animate);
 
@@ -258,4 +295,3 @@
     </script>
 </body>
 </html>
-
